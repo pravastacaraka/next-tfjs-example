@@ -1,13 +1,34 @@
 import { Box, Center, Flex, Text, VisuallyHiddenInput } from "@chakra-ui/react";
+import * as tf from "@tensorflow/tfjs";
 import Head from "next/head";
 import Image from "next/image";
 import { useState } from "react";
 
 const BG_UPLOAD = `url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='100%25' height='100%25' fill='none' stroke='%23E4E6ED' stroke-width='4' stroke-dasharray='4, 12' stroke-linecap='square'/%3E%3C/svg%3E")`;
+const WEIGHTS = "https://storage.googleapis.com/smart-odontogram/weights/model.json";
+const LABELS = ["sehat", "lubang", "amalgam", "komposit", "hilang"];
+const [MODEL_WIDTH, MODEL_HEIGHT] = [320, 320];
 
 export default function Home() {
+  const [dataPredict, setDataPredict] = useState();
   const [imagePreview, setImagePreview] = useState();
   const [isHover, setHover] = useState(false);
+
+  // Handler load model
+  const run = async () => {
+    const model = await tf.loadGraphModel(WEIGHTS);
+    setTimeout(() => detect(model), 10);
+  };
+
+  // Handler for object detection
+  const detect = (net) => {
+    const imagePlaceholder = document.getElementsByClassName("preview-img")[0];
+    const input = tf.image
+      .resizeBilinear(tf.browser.fromPixels(imagePlaceholder), [MODEL_WIDTH, MODEL_HEIGHT])
+      .div(255.0)
+      .expandDims(0);
+    net.executeAsync(input).then((res) => setDataPredict(res));
+  };
 
   // Handler for element clicker
   const clickHandler = (elementId) => {
@@ -16,7 +37,6 @@ export default function Home() {
 
   // Handler for uploading file
   const uploadHandler = (e) => {
-    e.preventDefault();
     const reader = new FileReader();
     const file = e.target.files[0];
 
@@ -27,6 +47,9 @@ export default function Home() {
       };
       reader.readAsDataURL(file);
     }
+
+    // Run prediction
+    run();
   };
 
   return (
@@ -37,11 +60,7 @@ export default function Home() {
       </Head>
 
       <Center as="main" h="100vh">
-        <Flex
-          className="object-detection"
-          justifyContent="center"
-          alignItems="center"
-        >
+        <Flex className="object-detection" justifyContent="center" alignItems="center">
           <Flex
             className="detection-container"
             justifyContent="center"
@@ -57,17 +76,12 @@ export default function Home() {
             onClick={() => clickHandler("file-input")}
           >
             {imagePreview ? (
-              <PreviewContainer props={{ image: imagePreview }} />
+              <PreviewContainer props={{ image: imagePreview, predict: dataPredict }} />
             ) : (
               <PromptContainer props={{ hover: isHover }} />
             )}
           </Flex>
-          <VisuallyHiddenInput
-            id="file-input"
-            type="file"
-            accept="image/*"
-            onChange={(e) => uploadHandler(e)}
-          />
+          <VisuallyHiddenInput id="file-input" type="file" accept="image/*" onChange={(e) => uploadHandler(e)} />
         </Flex>
       </Center>
     </>
@@ -105,12 +119,7 @@ function PromptContainer({ props }) {
       <Box className="prompt" color="#868f9b" mt={4}>
         <Text>Drag and drop your image here, or</Text>
         <Text>
-          <Box
-            as="span"
-            className="dialogue-link"
-            color="black"
-            textDecoration="underline"
-          >
+          <Box as="span" className="dialogue-link" color="black" textDecoration="underline">
             open
           </Box>{" "}
           from your computer{" "}
@@ -121,6 +130,26 @@ function PromptContainer({ props }) {
 }
 
 function PreviewContainer({ props }) {
+  let dataPredictions = [];
+
+  // Handler for drawing bounding boxes in preview image
+  if (props.predict) {
+    const [boxes, scores, classes, valid_detections] = props.predict;
+
+    // Aggregate result
+    for (let i = 0; i < valid_detections.dataSync()[0]; ++i) {
+      const [x1, y1, x2, y2] = boxes.dataSync().slice(i * 4, (i + 1) * 4);
+      dataPredictions.push({
+        score: scores.dataSync()[i].toFixed(2),
+        label: LABELS[classes.dataSync()[i]],
+        x: (x1 * 100).toFixed(2) + "%",
+        y: (y1 * 100).toFixed(2) + "%",
+        width: ((x2 - x1) * 100).toFixed(2) + "%",
+        height: ((y2 - y1) * 100).toFixed(2) + "%",
+      });
+    }
+  }
+
   return (
     <Flex
       className="preview-container"
@@ -131,13 +160,45 @@ function PreviewContainer({ props }) {
       position="relative"
     >
       <Box className="preview" w={480} h={320}>
-        <Image
-          className="preview-img"
-          src={props.image}
-          layout="fill"
-          alt="Image Preview"
-        />
+        <Image className="preview-img" src={props.image} layout="fill" alt="Image Preview" />
+        {dataPredictions &&
+          dataPredictions.map((row, i) => {
+            return <DetectionContainer key={i} props={row} />;
+          })}
       </Box>
     </Flex>
+  );
+}
+
+function DetectionContainer({ props }) {
+  return (
+    <Box
+      className="detection"
+      position="absolute"
+      left={props.x}
+      top={props.y}
+      w={props.width}
+      h={props.height}
+      borderWidth="2px"
+      borderStyle="solid"
+      borderColor="red"
+    >
+      <Box
+        className="label"
+        position="absolute"
+        left="1px"
+        top="1px"
+        color="#fff"
+        padding="0.2em"
+        whiteSpace="nowrap"
+        textTransform="uppercase"
+        fontWeight="500"
+        fontSize="0.8em"
+        cursor="default"
+        backgroundColor="red"
+      >
+        {props.label} - {props.score}
+      </Box>
+    </Box>
   );
 }
