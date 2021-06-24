@@ -10,16 +10,14 @@ const LABELS = ["sehat", "lubang", "amalgam", "komposit", "hilang"];
 const [MODEL_WIDTH, MODEL_HEIGHT] = [320, 320];
 
 export default function Home() {
-  const [dataModel, setDataModel] = useState();
   const [imagePreview, setImagePreview] = useState();
-  const [isModelLoading, setModelLoading] = useState(false);
+  const [isModelLoaded, setModelLoaded] = useState();
   const [isHover, setHover] = useState(false);
 
   // load model when the page is loaded
   useEffect(async () => {
     const model = await tf.loadGraphModel(WEIGHTS);
-    setDataModel(model);
-    setModelLoading(true);
+    setModelLoaded(model);
   }, []);
 
   // handler for element clicker
@@ -65,8 +63,8 @@ export default function Home() {
             onClick={() => clickHandler("file-input")}
           >
             {imagePreview ? (
-              <PreviewContainer props={{ image: imagePreview, model: dataModel }} />
-            ) : isModelLoading ? (
+              <PreviewContainer props={{ image: imagePreview, model: isModelLoaded }} />
+            ) : isModelLoaded ? (
               <PromptContainer props={{ hover: isHover }} />
             ) : (
               <Text color="#868f9b">Loading Model...</Text>
