@@ -156,15 +156,26 @@ function PreviewContainer({ props }) {
       justifyContent="center"
       alignItems="center"
       textAlign="center"
-      pointerEvents="none"
       position="relative"
     >
       <Box className="preview" w={480} h={320}>
         <Image className="preview-img" src={props.image} layout="fill" alt="Image Preview" />
-        {dataPredictions &&
+        {dataPredictions.length == 0 ? (
+          <Center
+            position="absolute"
+            w="100%"
+            h="100%"
+            color="white"
+            backgroundColor="rgba(0,0,0,0.8)"
+            cursor="progress"
+          >
+            Detecting...
+          </Center>
+        ) : (
           dataPredictions.map((row, i) => {
             return <DetectionContainer key={i} props={row} />;
-          })}
+          })
+        )}
       </Box>
     </Flex>
   );
