@@ -2,54 +2,41 @@ import { Box, Center, Flex, Text, VisuallyHiddenInput } from "@chakra-ui/react";
 import * as tf from "@tensorflow/tfjs";
 import Head from "next/head";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const BG_UPLOAD = `url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='100%25' height='100%25' fill='none' stroke='%23E4E6ED' stroke-width='4' stroke-dasharray='4, 12' stroke-linecap='square'/%3E%3C/svg%3E")`;
-const WEIGHTS = "https://storage.googleapis.com/smart-odontogram/weights/model.json";
+const WEIGHTS = "https://storage.googleapis.com/smart-odontogram/disease_classification_model/model.json";
 const LABELS = ["sehat", "lubang", "amalgam", "komposit", "hilang"];
 const [MODEL_WIDTH, MODEL_HEIGHT] = [320, 320];
 
 export default function Home() {
-  const [dataPredict, setDataPredict] = useState();
   const [imagePreview, setImagePreview] = useState();
+  const [isModelLoaded, setModelLoaded] = useState();
   const [isHover, setHover] = useState(false);
 
-  // Handler load model
-  const run = async () => {
+  // load model when the page is loaded
+  useEffect(async () => {
     const model = await tf.loadGraphModel(WEIGHTS);
-    setTimeout(() => detect(model), 10);
-  };
+    setModelLoaded(model);
+  }, []);
 
-  // Handler for object detection
-  const detect = (net) => {
-    const imagePlaceholder = document.getElementsByClassName("preview-img")[0];
-    const input = tf.image
-      .resizeBilinear(tf.browser.fromPixels(imagePlaceholder), [MODEL_WIDTH, MODEL_HEIGHT])
-      .div(255.0)
-      .expandDims(0);
-    net.executeAsync(input).then((res) => setDataPredict(res));
-  };
-
-  // Handler for element clicker
+  // handler for element clicker
   const clickHandler = (elementId) => {
     document.getElementById(elementId).click();
   };
 
-  // Handler for uploading file
+  // handler for uploading file
   const uploadHandler = (e) => {
     const reader = new FileReader();
     const file = e.target.files[0];
 
-    // Let the app read file contents asynchronously
+    // let the app read file contents asynchronously
     if (reader !== undefined && file !== undefined) {
       reader.onloadend = function () {
         setImagePreview(reader.result);
       };
       reader.readAsDataURL(file);
     }
-
-    // Run prediction
-    run();
   };
 
   return (
@@ -76,9 +63,11 @@ export default function Home() {
             onClick={() => clickHandler("file-input")}
           >
             {imagePreview ? (
-              <PreviewContainer props={{ image: imagePreview, predict: dataPredict }} />
-            ) : (
+              <PreviewContainer props={{ image: imagePreview, model: isModelLoaded }} />
+            ) : isModelLoaded ? (
               <PromptContainer props={{ hover: isHover }} />
+            ) : (
+              <Text color="#868f9b">Loading Model...</Text>
             )}
           </Flex>
           <VisuallyHiddenInput id="file-input" type="file" accept="image/*" onChange={(e) => uploadHandler(e)} />
@@ -130,25 +119,36 @@ function PromptContainer({ props }) {
 }
 
 function PreviewContainer({ props }) {
-  let dataPredictions = [];
+  const [dataPredict, setDataPredict] = useState([]);
 
-  // Handler for drawing bounding boxes in preview image
-  if (props.predict) {
-    const [boxes, scores, classes, valid_detections] = props.predict;
+  // handler for object detection
+  const detect = async (net) => {
+    setDataPredict([]); // reset bounding box
+    const imagePlaceholder = document.getElementsByClassName("preview-img")[0];
+    const imageTensor = tf.browser.fromPixels(imagePlaceholder);
 
-    // Aggregate result
-    for (let i = 0; i < valid_detections.dataSync()[0]; ++i) {
+    // load input
+    const input = tf.image.resizeBilinear(imageTensor, [MODEL_WIDTH, MODEL_HEIGHT]).div(255.0).expandDims(0);
+
+    // inference
+    const res = await net.executeAsync(input);
+    const [boxes, scores, classes, valid_detections] = res;
+
+    for (let i = 0; i < valid_detections.dataSync()[0]; i++) {
       const [x1, y1, x2, y2] = boxes.dataSync().slice(i * 4, (i + 1) * 4);
-      dataPredictions.push({
-        score: scores.dataSync()[i].toFixed(2),
-        label: LABELS[classes.dataSync()[i]],
-        x: (x1 * 100).toFixed(2) + "%",
-        y: (y1 * 100).toFixed(2) + "%",
-        width: ((x2 - x1) * 100).toFixed(2) + "%",
-        height: ((y2 - y1) * 100).toFixed(2) + "%",
-      });
+      setDataPredict((dataPredict) => [
+        ...dataPredict,
+        {
+          score: scores.dataSync()[i].toFixed(2),
+          label: LABELS[classes.dataSync()[i]],
+          x: (x1 * 100).toFixed(2) + "%",
+          y: (y1 * 100).toFixed(2) + "%",
+          width: ((x2 - x1) * 100).toFixed(2) + "%",
+          height: ((y2 - y1) * 100).toFixed(2) + "%",
+        },
+      ]);
     }
-  }
+  };
 
   return (
     <Flex
@@ -159,8 +159,14 @@ function PreviewContainer({ props }) {
       position="relative"
     >
       <Box className="preview" w={480} h={320}>
-        <Image className="preview-img" src={props.image} layout="fill" alt="Image Preview" />
-        {dataPredictions.length == 0 ? (
+        <Image
+          className="preview-img"
+          src={props.image}
+          layout="fill"
+          onLoad={() => detect(props.model)}
+          alt="Image Preview"
+        />
+        {dataPredict.length == 0 ? (
           <Center
             position="absolute"
             w="100%"
@@ -172,7 +178,7 @@ function PreviewContainer({ props }) {
             Detecting...
           </Center>
         ) : (
-          dataPredictions.map((row, i) => {
+          dataPredict.map((row, i) => {
             return <DetectionContainer key={i} props={row} />;
           })
         )}
