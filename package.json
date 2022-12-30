@@ -9,8 +9,8 @@
   },
   "dependencies": {
     "@chakra-ui/react": "1.6.10",
-    "@emotion/react": "11.5.0",
-    "@emotion/styled": "11.3.0",
+    "@emotion/react": "11.10.5",
+    "@emotion/styled": "11.10.5",
     "@tensorflow/tfjs": "3.9.0",
     "framer-motion": "5.0.0",
     "next": "11.1.2",
