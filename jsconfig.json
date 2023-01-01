@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@app-components/*": ["./components/*"],
+      "@app-config/*": ["./config/*"],
+      "@app-datasets/*": ["./datasets/*"],
+      "@app-pages/*": ["./pages/*"],
+      "@app-providers/*": ["./providers/*"],
+      "@app-styles/*": ["./styles/*"]
+    }
+  },
+  "exclude": ["node_modules", ".vscode", ".next"]
+}

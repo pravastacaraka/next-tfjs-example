@@ -5,17 +5,30 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "build:static": "npm run build && next export",
+    "postbuild": "next-sitemap --config config/sitemap.config.js",
+    "start": "next start",
+    "lint": "next lint"
   },
   "dependencies": {
-    "@chakra-ui/react": "1.6.10",
-    "@emotion/react": "11.5.0",
-    "@emotion/styled": "11.3.0",
-    "@tensorflow/tfjs": "3.9.0",
-    "framer-motion": "5.0.0",
-    "next": "11.1.2",
-    "react": "17.0.2",
-    "react-dom": "17.0.2",
-    "react-icons": "4.3.1"
+    "@chakra-ui/react": "2.4.6",
+    "@emotion/react": "11.10.5",
+    "@emotion/styled": "11.10.5",
+    "@next/font": "13.1.1",
+    "@tensorflow/tfjs": "3.21.0",
+    "@vercel/analytics": "^0.1.6",
+    "framer-motion": "8.0.2",
+    "next": "13.1.1",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-icons": "4.7.1"
+  },
+  "devDependencies": {
+    "encoding": "0.1.13",
+    "eslint": "8.30.0",
+    "eslint-config-next": "13.1.1",
+    "eslint-config-prettier": "8.5.0",
+    "next-sitemap": "3.1.43",
+    "prettier": "2.8.1"
   }
 }
