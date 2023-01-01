@@ -4,6 +4,7 @@
 /node_modules
 /.pnp
 .pnp.js
+*.lock
 
 # testing
 /coverage
@@ -32,3 +33,6 @@ yarn-error.log*
 
 # vercel
 .vercel
+
+# esLint
+.eslintcache
