@@ -25,7 +25,7 @@
   },
   "devDependencies": {
     "encoding": "0.1.13",
-    "eslint": "8.30.0",
+    "eslint": "8.31.0",
     "eslint-config-next": "13.1.1",
     "eslint-config-prettier": "8.5.0",
     "next-sitemap": "3.1.45",
