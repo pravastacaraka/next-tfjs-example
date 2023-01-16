@@ -1,5 +1,5 @@
 import Footer from "@app-components/footer";
-import { ChakraWrapper } from "@app-providers/chakra-ui";
+import { ChakraWrapper, Container } from "@app-providers/chakra-ui";
 import { Analytics } from "@app-providers/vercel";
 
 function RootLayout({ children }) {
@@ -7,9 +7,11 @@ function RootLayout({ children }) {
     <html lang="en">
       <body>
         <ChakraWrapper>
-          {children}
+          <Container as="main" display="grid" px={4} py={{ base: 4, md: 8 }}>
+            {children}
+            <Analytics />
+          </Container>
           <Footer />
-          <Analytics />
         </ChakraWrapper>
       </body>
     </html>

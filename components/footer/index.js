@@ -38,7 +38,7 @@ const footerSocials = [
 function Footer() {
   const date = new Date().getFullYear();
   return (
-    <Container as="footer">
+    <Container as="footer" py={8}>
       <Stack align="center" textAlign="center">
         <ButtonGroup>
           {footerSocials.map((social) => (
