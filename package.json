@@ -1,34 +1,45 @@
 {
   "name": "next-tfjs-example",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "prepare": "husky install",
+    "dev": "next dev -p 3001",
     "build": "next build",
     "build:static": "npm run build && next export",
     "postbuild": "next-sitemap --config config/sitemap.config.js",
-    "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "lint:fix": "npm run lint --fix",
+    "start": "next start"
   },
   "dependencies": {
-    "@chakra-ui/react": "2.4.6",
+    "@chakra-ui/react": "2.4.9",
     "@emotion/react": "11.10.5",
     "@emotion/styled": "11.10.5",
-    "@next/font": "13.1.1",
-    "@tensorflow/tfjs": "3.21.0",
-    "@vercel/analytics": "^0.1.6",
-    "framer-motion": "8.0.2",
-    "next": "13.1.1",
+    "@next/font": "13.1.2",
+    "@tensorflow/tfjs": "4.2.0",
+    "@vercel/analytics": "0.1.8",
+    "framer-motion": "8.4.3",
+    "next": "13.1.2",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-icons": "4.7.1"
   },
   "devDependencies": {
+    "@commitlint/cli": "17.4.2",
+    "@commitlint/config-conventional": "17.4.2",
     "encoding": "0.1.13",
     "eslint": "8.31.0",
-    "eslint-config-next": "13.1.1",
+    "eslint-config-next": "13.1.2",
     "eslint-config-prettier": "8.6.0",
+    "husky": "8.0.3",
+    "lint-staged": "13.1.0",
     "next-sitemap": "3.1.45",
     "prettier": "2.8.2"
+  },
+  "lint-staged": {
+    "*.js": "eslint --cache --fix",
+    "*.css": "stylelint --fix",
+    "*.{js,css,md}": "prettier --write"
   }
 }
