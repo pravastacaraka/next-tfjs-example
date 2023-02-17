@@ -12,8 +12,8 @@
   },
   "dependencies": {
     "@chakra-ui/react": "2.4.6",
-    "@emotion/react": "11.10.5",
-    "@emotion/styled": "11.10.5",
+    "@emotion/react": "11.10.6",
+    "@emotion/styled": "11.10.6",
     "@next/font": "13.1.1",
     "@tensorflow/tfjs": "3.21.0",
     "@vercel/analytics": "^0.1.6",
