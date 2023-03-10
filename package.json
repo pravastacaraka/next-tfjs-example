@@ -14,11 +14,11 @@
     "@chakra-ui/react": "2.4.6",
     "@emotion/react": "11.10.5",
     "@emotion/styled": "11.10.5",
-    "@next/font": "13.1.1",
+    "@next/font": "13.2.4",
     "@tensorflow/tfjs": "3.21.0",
     "@vercel/analytics": "^0.1.6",
     "framer-motion": "8.0.2",
-    "next": "13.1.1",
+    "next": "13.2.4",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-icons": "4.7.1"
@@ -26,7 +26,7 @@
   "devDependencies": {
     "encoding": "0.1.13",
     "eslint": "8.31.0",
-    "eslint-config-next": "13.1.1",
+    "eslint-config-next": "13.2.4",
     "eslint-config-prettier": "8.6.0",
     "next-sitemap": "3.1.45",
     "prettier": "2.8.2"
