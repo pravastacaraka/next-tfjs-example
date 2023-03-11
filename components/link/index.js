@@ -1,4 +1,4 @@
-import { IconButton, Link as ChakraLink } from "@app-providers/chakra-ui";
+import { Link as ChakraLink, IconButton } from "@app-providers/chakra-ui";
 import NextLink from "next/link";
 
 const NextChakraLink = ({ href, as, replace, scroll, shallow, prefetch, isExternal = false, ...chakraProps }) => {

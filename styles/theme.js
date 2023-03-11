@@ -1,30 +1,33 @@
 import { extendTheme } from "@chakra-ui/react";
-import { Inter } from "@next/font/google";
+import { Inter } from "next/font/google";
 
 const inter = Inter();
 
 const breakpoints = {
-  xs: "375px",
   sm: "640px",
   md: "768px",
   lg: "1024px",
   xl: "1280px",
+  "2xl": "1536px",
 };
 
 const styles = {
   global: {
-    html: {
+    "*": {
       padding: 0,
       margin: 0,
+      boxSizing: "border-box",
+    },
+    html: {
+      maxWidth: "100vw",
+      overflowX: "hidden",
       scrollBehavior: "smooth",
     },
     body: {
-      padding: 0,
-      margin: 0,
       minW: "320px",
-      color: "black",
-      bg: "white",
       fontSize: { base: "sm", md: "md" },
+      maxWidth: "100vw",
+      overflowX: "hidden",
       ...inter.style,
     },
     canvas: {
@@ -43,8 +46,7 @@ const customTheme = extendTheme({
       baseStyle: {
         w: "full",
         maxW: "4xl",
-        px: { base: "6", md: "4" },
-        py: { base: "6", md: "8" },
+        px: { base: "6", md: "8" },
       },
     },
     Heading: {

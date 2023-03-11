@@ -4,16 +4,16 @@ import LABELS from "@app-datasets/coco/classes.json";
 import {
   Box,
   Button,
-  ButtonGroup,
   Center,
-  chakra,
-  Container,
+  Grid,
+  GridItem,
   Heading,
   Icon,
+  Stack,
   Text,
-  useBoolean,
   VisuallyHiddenInput,
-  VStack,
+  chakra,
+  useBoolean,
 } from "@app-providers/chakra-ui";
 import * as tf from "@tensorflow/tfjs";
 import "@tensorflow/tfjs-backend-webgl";
@@ -22,7 +22,7 @@ import { FaTimes } from "react-icons/fa";
 
 const ZOO_MODEL = [{ name: "yolov5", child: ["yolov5n", "yolov5s"] }];
 
-function Home() {
+function RootPage() {
   const [model, setModel] = useState(null);
   const [aniId, setAniId] = useState(null);
   const [modelName, setModelName] = useState(ZOO_MODEL[0]);
@@ -34,7 +34,7 @@ function Home() {
   const inputImageRef = useRef(null);
 
   const [singleImage, setSingleImage] = useBoolean();
-  const [liveWebcam, setliveWebcam] = useBoolean();
+  const [liveWebcam, setLiveWebcam] = useBoolean();
 
   useEffect(() => {
     tf.loadGraphModel(`/model/${modelName.name}/${modelName.child[1]}/model.json`, {
@@ -98,7 +98,7 @@ function Home() {
   };
 
   // handler to predict in a single image
-  const predictImage = async () => {
+  const doPredictImage = async () => {
     if (!model) return;
 
     tf.engine().startScope();
@@ -163,7 +163,7 @@ function Home() {
   };
 
   // handler to predict per video frame
-  const predictFrame = async () => {
+  const doPredictFrame = async () => {
     if (!model) return;
     if (!videoRef.current || !videoRef.current.srcObject) return;
 
@@ -192,7 +192,7 @@ function Home() {
     // clear memory
     tf.dispose(res);
 
-    const reqId = requestAnimationFrame(predictFrame);
+    const reqId = requestAnimationFrame(doPredictFrame);
     setAniId(reqId);
 
     tf.engine().endScope();
@@ -211,7 +211,7 @@ function Home() {
     setSingleImage.toggle();
 
     imageRef.current.onload = () => {
-      predictImage();
+      doPredictImage();
       window.URL.revokeObjectURL(src);
     };
   };
@@ -228,15 +228,17 @@ function Home() {
       },
     });
 
+    window.localStream = media;
     videoRef.current.srcObject = media;
-    setliveWebcam.toggle();
+    setLiveWebcam.toggle();
     videoRef.current.onloadedmetadata = () => {
-      predictFrame();
+      doPredictFrame();
     };
   };
 
   return (
-    <Container as="main">
+    <>
+      {/* loading layer  */}
       <Center
         width="full"
         height="full"
@@ -251,20 +253,24 @@ function Home() {
       >
         {`Loading model... ${(loading * 100).toFixed(1)}%`}
       </Center>
-      <VStack spacing={8} minHeight="calc(100vh - 4rem - 164px)" justifyContent="center" alignItems="center">
-        <VStack spacing={4} maxW={640}>
-          <Heading>Tensorflow.js Example</Heading>
-          <Text textAlign="center">
+
+      {/* main layer */}
+      <Center as="section" flexDir="column" minH={{ base: "calc(100vh - 60px)", md: "calc(100vh - 100px)" }}>
+        <Stack align="center" textAlign="center" spacing={4} mb={10} maxW={640}>
+          <Heading as="h1" size={{ base: "xl", sm: "2xl", md: "3xl" }}>
+            Tensorflow.js Example
+          </Heading>
+          <Text>
             This object detection project uses the YOLOv5 model which has been converted to Tensorflow.js format
             for edge computing.
           </Text>
-        </VStack>
+        </Stack>
 
-        <VStack spacing={0}>
+        <Stack align="center" textAlign="center" spacing={0} mb={10} width="full" maxWidth={640}>
           <UploadLayer display={!singleImage && !liveWebcam ? "flex" : "none"} />
           <Box
             id="image-placeholder"
-            width={640}
+            width="full"
             position="relative"
             bgImage={`url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='100%25' height='100%25' fill='none' stroke='%23E4E6ED' stroke-width='4' stroke-dasharray='4, 12' stroke-linecap='square'/%3E%3C/svg%3E")`}
             display={singleImage || liveWebcam ? "flex" : "none"}
@@ -307,7 +313,10 @@ function Home() {
                   cancelAnimationFrame(aniId);
                   setAniId(null);
                   videoRef.current.srcObject = null;
-                  setliveWebcam.toggle();
+                  window.localStream.getTracks().forEach((track) => {
+                    track.stop();
+                  });
+                  setLiveWebcam.toggle();
                 }
                 // clear earlier detections data
                 // document.getElementById("prediction-placeholder").replaceChildren();
@@ -315,27 +324,34 @@ function Home() {
               aria-hidden="true"
             />
           </Box>
-        </VStack>
+        </Stack>
 
-        <ButtonGroup>
-          <VisuallyHiddenInput ref={inputImageRef} type="file" accept="image/*" onChange={imageHandler} />
-          <Button disabled={singleImage || liveWebcam} onClick={() => inputImageRef.current.click()}>
+        <VisuallyHiddenInput ref={inputImageRef} type="file" accept="image/*" onChange={imageHandler} />
+
+        <Grid
+          gap={2}
+          templateColumns={{ base: "repeat(2, 1fr)", md: "repeat(3, 1fr)" }}
+          templateRows={{ base: "repeat(2, 1fr)", md: "repeat(1, 1fr)" }}
+        >
+          <GridItem as={Button} disabled={singleImage || liveWebcam} onClick={() => inputImageRef.current.click()}>
             Single Image
-          </Button>
-          <Button disabled={liveWebcam || singleImage} onClick={webcamHandler}>
+          </GridItem>
+          <GridItem as={Button} disabled={liveWebcam || singleImage} onClick={webcamHandler}>
             Live Webcam
-          </Button>
-          <Button>Settings</Button>
-        </ButtonGroup>
-      </VStack>
-    </Container>
+          </GridItem>
+          <GridItem as={Button} colSpan={{ base: 2, md: 1 }}>
+            Settings
+          </GridItem>
+        </Grid>
+      </Center>
+    </>
   );
 }
 
 function UploadLayer({ ...restProps }) {
   return (
     <Center
-      width={640}
+      width="full"
       height={320}
       bgImage={`url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='100%25' height='100%25' fill='none' stroke='%23E4E6ED' stroke-width='4' stroke-dasharray='4, 12' stroke-linecap='square'/%3E%3C/svg%3E")`}
       {...restProps}
@@ -347,4 +363,4 @@ function UploadLayer({ ...restProps }) {
   );
 }
 
-export default Home;
+export default RootPage;
