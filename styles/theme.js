@@ -1,5 +1,5 @@
 import { extendTheme } from "@chakra-ui/react";
-import { Inter } from "@next/font/google";
+import { Inter } from "next/font/google";
 
 const inter = Inter();
 

@@ -238,6 +238,7 @@ function RootPage() {
 
   return (
     <>
+      {/* loading layer  */}
       <Center
         width="full"
         height="full"
@@ -252,9 +253,13 @@ function RootPage() {
       >
         {`Loading model... ${(loading * 100).toFixed(1)}%`}
       </Center>
+
+      {/* main layer */}
       <Center as="section" flexDir="column" minH={{ base: "calc(100vh - 60px)", md: "calc(100vh - 100px)" }}>
-        <Stack align="center" textAlign="center" spacing={4} mb={10}>
-          <Heading as="h1">Tensorflow.js Example</Heading>
+        <Stack align="center" textAlign="center" spacing={4} mb={10} maxW={640}>
+          <Heading as="h1" size={{ base: "xl", sm: "2xl", md: "3xl" }}>
+            Tensorflow.js Example
+          </Heading>
           <Text>
             This object detection project uses the YOLOv5 model which has been converted to Tensorflow.js format
             for edge computing.
