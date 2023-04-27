@@ -1,7 +1,7 @@
 import { extendTheme } from "@chakra-ui/react";
 import { Inter } from "next/font/google";
 
-const inter = Inter();
+const inter = Inter({ subsets: ['latin'] });
 
 const breakpoints = {
   sm: "640px",
