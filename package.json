@@ -17,7 +17,7 @@
     "@emotion/react": "11.10.8",
     "@emotion/styled": "11.10.8",
     "@tensorflow/tfjs": "4.4.0",
-    "@vercel/analytics": "1.0.0",
+    "@vercel/analytics": "1.0.1",
     "framer-motion": "10.12.4",
     "next": "13.4.2",
     "react": "18.2.0",
