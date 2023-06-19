@@ -28,7 +28,7 @@
     "@commitlint/cli": "17.6.5",
     "@commitlint/config-conventional": "17.6.5",
     "encoding": "0.1.13",
-    "eslint": "8.42.0",
+    "eslint": "8.43.0",
     "eslint-config-next": "13.4.6",
     "eslint-config-prettier": "8.8.0",
     "husky": "8.0.3",
