@@ -32,7 +32,7 @@
     "eslint-config-next": "13.4.6",
     "eslint-config-prettier": "8.8.0",
     "husky": "8.0.3",
-    "lint-staged": "13.2.2",
+    "lint-staged": "13.3.0",
     "next-sitemap": "4.1.8",
     "prettier": "2.8.8"
   },
