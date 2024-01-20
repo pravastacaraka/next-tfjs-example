@@ -24,7 +24,6 @@ const _app_metadata = {
       },
     ],
   },
-  themeColor: "ffffff",
   manifest: "/favicon/site.webmanifest",
   authors: {
     name: "Pravasta Caraka Bramastagiri",
@@ -32,4 +31,10 @@ const _app_metadata = {
   },
 };
 
-module.exports = { _app_config, _app_metadata };
+/** @type {import("next").Viewport} */
+const _app_viewport = {
+  width: 1,
+  themeColor: "#ffffff",
+};
+
+module.exports = { _app_config, _app_metadata, _app_viewport };
